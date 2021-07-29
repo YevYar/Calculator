@@ -28,7 +28,7 @@ public:
 
 private:
 	enum class TokenValue {
-		NAME, NUMBER, SPACE, NO_OPERAND,
+		NAME, NUMBER, SPACE, NO_OPERAND, UNKNOWN,
 		PLUS = '+', MINUS = '-', MUL = '*', DIV = '/',
 		PRINT = ';', DOT = '.', ASSIGN = '=', LP = '(', RP = ')'
 	};	

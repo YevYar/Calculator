@@ -13,8 +13,7 @@ void Calculator::run()
 {
 	string str;
 	while (getline(cin, str)) {
-
-		std::stringstream data(str);
+		stringstream data(str);
 		string tempExpr;
 
 		if (helpers::isCinValid()) {
@@ -117,6 +116,11 @@ double Calculator::prim()
 		lastSymbol = _currTok;
 		parseNextToken();
 
+		// ( and number cannot be after variable without +-*/=
+		if (!varName.empty() && (_currTok == TokenValue::LP || _currTok == TokenValue::NUMBER)) {
+			throw exception("Invalid expression");
+		}
+
 		switch (_currTok) {
 		case TokenValue::LP: {
 			double num = expr();
@@ -167,6 +171,8 @@ double Calculator::prim()
 			return 0;
 		}
 	}
+
+	return 0;
 }
 
 void Calculator::parseNextToken(bool spaceSensitive) noexcept
@@ -230,44 +236,36 @@ void Calculator::parseNextToken(bool spaceSensitive) noexcept
 	case ';':
 		_currTok = TokenValue::PRINT;
 		break;
+	default:
+		_currTok = TokenValue::UNKNOWN;
+		break;
 	}
 }
 
 double Calculator::parseNumber()
 {
-	string numberStr;
-	bool isDotFound = false;
-	
-	while (_index <= _currExpr.length() 
-		&& (_currTok == TokenValue::NUMBER || _currTok == TokenValue::DOT || _currTok == TokenValue::MINUS)) 
-	{
-		// cannot be more than one minus in a number
-		if (_currTok == TokenValue::MINUS && !numberStr.empty()) {
-			// just break because minus can be a part of an expression, not only of a number
-			break;
-		}
-		if (_currTok == TokenValue::DOT && isDotFound) {
-			throw exception("Extra dot in the number");
-		}
-		if (_currTok == TokenValue::DOT && !isDotFound) {
-			isDotFound = true;
-		}	
-
-		numberStr.push_back(_currExpr.at(_index - 1));
-		parseNextToken(true);
-	}
-
-	--_index;
-
 	try {
-		return stod(numberStr);
+		stringstream data(_currExpr.substr(--_index));
+		double num = 0;
+		data >> num;
+
+		auto pos = data.tellg();
+		if (pos != -1) {
+			_index += pos;
+		}
+		else {
+			_index = _currExpr.length();
+		}
+
+		return num;
+
 	}
-	catch (const exception& error) {
+	catch (const exception&) {
 		throw exception("Invalid number");
 	}
 }
 
-std::string Calculator::parseName() noexcept
+string Calculator::parseName() noexcept
 {
 	string variableName;
 	
@@ -286,7 +284,7 @@ void Calculator::markThatEndIsReached() noexcept
 	_currTok = TokenValue::NO_OPERAND;
 }
 
-void Calculator::resetCurrentExpression(const std::string& newExpr) noexcept
+void Calculator::resetCurrentExpression(const string& newExpr) noexcept
 {
 	_currExpr = newExpr;
 	_index = 0;
