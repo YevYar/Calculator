@@ -4,7 +4,7 @@
 // 3. expressions with brackets ()
 // 4. variables, which must contain only letters
 // 5. assigning of results of expressions, negative numbers and other variables to variable
-// Variables reassigning is NOT SUPPORTED.
+// 6. variables reassigning 
 
 // Notes:
 // 1. The calculator is not space sensitive. Spaces is taken into account only while parsing names and numbers.

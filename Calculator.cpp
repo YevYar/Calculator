@@ -100,76 +100,63 @@ double Calculator::term()
 // P -> N | (E) | Var = E
 double Calculator::prim()
 {
-	TokenValue lastSymbol = _currTok;
-	
 	parseNextToken();
-	if (_currTok == TokenValue::MINUS) {
-		return parseNumber();
+
+	switch (_currTok) {
+	case TokenValue::LP: {
+		double num = expr();
+		if (_currTok != TokenValue::RP) {
+			throw exception("The ) is needed");
+		}
+		return num;
 	}
+	case TokenValue::NAME: {
+		string name = parseName();	
+		auto checkVar = [&name](const pair<string, double>& var) { return var.first == name; };
+		auto var = find_if(begin(_variables), end(_variables), checkVar);
 
-	--_index;
-	_currTok = lastSymbol;
-
-	string varName;
-
-	while (_index < _currExpr.length() && !_isEndReached) {
-		lastSymbol = _currTok;
 		parseNextToken();
 
-		// ( and number cannot be after variable without +-*/=
-		if (!varName.empty() && (_currTok == TokenValue::LP || _currTok == TokenValue::NUMBER)) {
-			throw exception("Invalid expression");
-		}
-
-		switch (_currTok) {
-		case TokenValue::LP: {
-			double num = expr();
-			if (_currTok != TokenValue::RP) {
-				throw exception("The ) is needed");
-			}
-			return num;
-		}
-		case TokenValue::NAME: {
-			// variable cannot be used after another variable, number or ) without +-*/=(
-			if (lastSymbol == TokenValue::NAME || lastSymbol == TokenValue::NUMBER || lastSymbol == TokenValue::RP) {
-				throw exception("Invalid expression");
-			}
-			// names cannot contain spaces
-			if (lastSymbol == TokenValue::SPACE && !varName.empty()) {
-				throw exception("Invalid variable name");
-			}
-
-			string name = parseName();	
-			auto checkVar = [&name](const pair<string, double>& var) { return var.first == name; };
-			auto var = find_if(begin(_variables), end(_variables), checkVar);
-
-			if (var == end(_variables)) {
-				varName = name;
-			}
-			else {
-				return var->second;
-			}
-
-			break;
-		}
-		case TokenValue::ASSIGN: {
-			if (varName.empty()) {
-				throw exception("The assign operator (=) can be used only after var name");
-			}
-
+		if (_currTok == TokenValue::ASSIGN) {
 			resetCurrentExpression(_currExpr.substr(_index));
-
 			double num = expr();
-			auto newVar = make_pair(varName, num);
+			auto newVar = make_pair(name, num);
+
+			if (var != end(_variables)) {
+				_variables.erase(var);
+			}
+
 			_variables.insert(newVar);
-			return num;
+			return num;		
 		}
-		case TokenValue::NUMBER:
-			return parseNumber();
-		default:
+		
+		if (var != end(_variables)) {
 			--_index;
-			return 0;
+			return var->second;
 		}
+		else {				
+			stringstream data;
+			data << "Undeclared variable " << name;
+			throw exception(data.str().c_str());
+		}
+
+		break;
+	}
+	case TokenValue::ASSIGN: 
+		throw exception("The assign operator (=) can be used only after var name");
+	case TokenValue::NUMBER:
+		return parseNumber();
+	case TokenValue::MINUS: 
+		parseNextToken();
+
+		if (_currTok == TokenValue::NUMBER) {
+			--_index;
+			return parseNumber();
+		}
+		else throw exception("Invalid expression");
+	default:
+		--_index;
+		return 0;
 	}
 
 	return 0;
