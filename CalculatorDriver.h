@@ -12,7 +12,7 @@ class CalculatorDriver
 {
 public:
 	~CalculatorDriver();
-	void run();
+	void run() noexcept;
 
 private:
 	Calculator* _calculator = new Calculator();
