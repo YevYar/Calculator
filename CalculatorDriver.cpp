@@ -21,7 +21,12 @@ void CalculatorDriver::run()
 
 		if (helpers::isCinValid()) {
 			while (getline(data, tempExpr, ';')) {
-				_calculator->startCalculation(tempExpr);
+				try {
+					cout << tempExpr << " = " << _calculator->calculate(tempExpr) << endl << endl;
+				}
+				catch (const exception& error) {
+					cerr << tempExpr << endl << error.what() << endl << endl;
+				}
 			}
 		}
 		else throw exception("The expression is not finished.");

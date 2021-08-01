@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void Calculator::startCalculation(const std::string& expression)
+double Calculator::calculate(const std::string& expression)
 {
 	string tempExpr;
 	tempExpr.resize(expression.length());
@@ -16,44 +16,43 @@ void Calculator::startCalculation(const std::string& expression)
 	replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
 	resetCurrentExpression(tempExpr);
 
-	cout << expression << " = " << expr() << endl;
+	try {
+		return expr();
+	}
+	catch (const exception& error) {
+		stringstream data;
+		data << error.what() << ": position: " << _currExpr.substr(--_index);
+		throw exception(data.str().c_str());
+	}
 }
 
 // E -> T + E | T - E | T
-double Calculator::expr() noexcept
+double Calculator::expr()
 {
-	double first = 0;
+	double first = term();
 
-	try {
-		first = term();
-
-		while (_index < _currExpr.length() && !_isEndReached) {
-			parseNextToken();
-
-			switch (_currTok) {
-			case TokenValue::PLUS: {
-				double second = term();
-				first += second;
-				break;
-			}
-			case TokenValue::MINUS: {
-				double second = term();
-				first -= second;
-				break;
-			}
-			case TokenValue::RP:
-			case TokenValue::NO_OPERAND:
-			case TokenValue::PRINT:
-				return first;
-			default:
-				throw exception("Invalid expression");
-			}
+	while (_index < _currExpr.length() && !_isEndReached) {
+		parseNextToken();
+		
+		switch (_currTok) {
+		case TokenValue::PLUS: {
+			double second = term();
+			first += second;
+			break;
 		}
-	}
-	catch (const exception& error) {
-		cerr << error.what() << ": position: " << _currExpr.substr(--_index) << "\nCurrent result: " << first << endl;
-		resetCurrentExpression("");
-	}
+		case TokenValue::MINUS: {
+			double second = term();
+			first -= second;
+			break;
+		}
+		case TokenValue::RP:
+		case TokenValue::NO_OPERAND:
+		case TokenValue::PRINT:
+			return first;
+		default:
+			throw exception("Invalid expression");
+		}
+	}	
 
 	return first;
 }

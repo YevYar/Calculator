@@ -21,7 +21,7 @@
 class Calculator
 {
 public:
-	void startCalculation(const std::string& expression);
+	double calculate(const std::string& expression);
 
 private:
 	enum class TokenValue {
@@ -30,7 +30,7 @@ private:
 		PRINT = ';', DOT = '.', ASSIGN = '=', LP = '(', RP = ')'
 	};	
 
-	double expr() noexcept;
+	double expr();
 	double term();
 	double prim();
 	void parseNextToken(bool spaceSensitive = false) noexcept;
