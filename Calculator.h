@@ -8,9 +8,6 @@
 
 // Notes:
 // 1. The calculator is not space sensitive. Spaces is taken into account only while parsing names and numbers.
-// 2. A semicolon (;) is used as a delimeter of different expressions.
-// 3. Calculating of expressions starts after pressing Enter.
-// 4. The last expression in the line can optionaly to not use a semicolon as a delimeter.
 
 // The calculator is implemented as recursive descent parser (https://en.wikipedia.org/wiki/Recursive_descent_parser).
 // Simple explanation - https://habr.com/ru/post/489534/
@@ -24,7 +21,7 @@
 class Calculator
 {
 public:
-	void run();
+	void startCalculation(const std::string& expression);
 
 private:
 	enum class TokenValue {

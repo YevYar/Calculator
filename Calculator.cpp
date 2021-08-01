@@ -5,26 +5,18 @@
 #include <sstream>
 
 #include "Calculator.h"
-#include "Helpers.h"
 
 using namespace std;
 
-void Calculator::run()
+void Calculator::startCalculation(const std::string& expression)
 {
-	string str;
-	while (getline(cin, str)) {
-		stringstream data(str);
-		string tempExpr;
+	string tempExpr;
+	tempExpr.resize(expression.length());
 
-		if (helpers::isCinValid()) {
-			while (getline(data, tempExpr, ';')) {
-				replace(tempExpr.begin(), tempExpr.end(), ',', '.');
-				resetCurrentExpression(tempExpr);
-				cout << tempExpr << " = " << expr() << endl;
-			}
-		}
-		else throw exception("The expression is not finished.");
-	}
+	replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
+	resetCurrentExpression(tempExpr);
+
+	cout << expression << " = " << expr() << endl;
 }
 
 // E -> T + E | T - E | T

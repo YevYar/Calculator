@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "Calculator.h"
+#include "CalculatorDriver.h"
 
 int main() {
-	Calculator calculator;
+	CalculatorDriver calculator;
 
 	try
 	{
