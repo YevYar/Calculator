@@ -223,20 +223,10 @@ void Calculator::parseNextToken(bool spaceSensitive) noexcept
 double Calculator::parseNumber()
 {
 	try {
-		stringstream data(_currExpr.substr(--_index));
-		double num = 0;
-		data >> num;
-
-		auto pos = data.tellg();
-		if (pos != -1) {
-			_index += pos;
-		}
-		else {
-			_index = _currExpr.length();
-		}
-
+		size_t pos;
+		double num = stod(_currExpr.substr(--_index), &pos);
+		_index += pos;
 		return num;
-
 	}
 	catch (const exception&) {
 		throw exception("Invalid number");
