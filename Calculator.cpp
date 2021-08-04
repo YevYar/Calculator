@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <cctype>
+#include <fmt/core.h>
 #include <iostream>
 #include <iterator>
-#include <sstream>
 
 #include "Calculator.h"
 
@@ -20,9 +20,10 @@ double Calculator::calculate(const std::string& expression)
 		return expr();
 	}
 	catch (const exception& error) {
-		stringstream data;
-		data << error.what() << ": position: " << _currExpr.substr(--_index);
-		throw exception(data.str().c_str());
+		string errorMes = fmt::format("{errorMes}: position: {pos}", 
+			fmt::arg("errorMes", error.what()), 
+			fmt::arg("pos", _currExpr.substr(--_index)));
+		throw exception(errorMes.c_str());
 	}
 }
 
@@ -125,10 +126,9 @@ double Calculator::prim()
 			--_index;
 			return var->second;
 		}
-		else {				
-			stringstream data;
-			data << "Undeclared variable " << name;
-			throw exception(data.str().c_str());
+		else {	
+			string errorMes = fmt::format("Undeclared variable {name}", fmt::arg("name", name));
+			throw exception(errorMes.c_str());
 		}
 
 		break;
