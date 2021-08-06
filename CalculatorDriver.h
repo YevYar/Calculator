@@ -8,15 +8,19 @@
 
 #include "Calculator.h"
 
-class CalculatorDriver
-{
-public:
-	~CalculatorDriver();
-	void run() noexcept;
+namespace calculator {
+	class CalculatorDriver
+	{
+	public:
+		// implement constructor to receive calculator
+		~CalculatorDriver();
 
-private:
-	Calculator* _calculator = new Calculator();
+		void run() noexcept;
 
-};
+	private:
+		Calculator* _calculator = new Calculator();
+
+	};
+}
 
 #endif

@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cctype>
 #include <fmt/core.h>
 #include <iostream>
 #include <iterator>
@@ -7,22 +6,24 @@
 #include "Calculator.h"
 
 using namespace std;
+using namespace calculator;
+using TokenValue = ExpressionParser::TokenValue;
 
-double Calculator::calculate(const std::string& expression)
+double Calculator::calculate(const string& expression)
 {
 	string tempExpr;
 	tempExpr.resize(expression.length());
 
 	replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
-	resetCurrentExpression(tempExpr);
-
+	_parser->setNewExpression(tempExpr);
+	
 	try {
 		return expr();
 	}
 	catch (const exception& error) {
 		string errorMes = fmt::format("{errorMes}: position: {pos}", 
 			fmt::arg("errorMes", error.what()), 
-			fmt::arg("pos", _currExpr.substr(--_index)));
+			fmt::arg("pos", _parser->getRestOfExpression()));
 		throw exception(errorMes.c_str());
 	}
 }
@@ -32,10 +33,8 @@ double Calculator::expr()
 {
 	double first = term();
 
-	while (_index < _currExpr.length() && !_isEndReached) {
-		parseNextToken();
-		
-		switch (_currTok) {
+	while (_parser->parseNextToken()) {
+		switch (_parser->getCurrentToken()) {
 		case TokenValue::PLUS: {
 			double second = term();
 			first += second;
@@ -48,7 +47,6 @@ double Calculator::expr()
 		}
 		case TokenValue::RP:
 		case TokenValue::NO_OPERAND:
-		case TokenValue::PRINT:
 			return first;
 		default:
 			throw exception("Invalid expression");
@@ -63,10 +61,8 @@ double Calculator::term()
 {
 	double first = prim();
 
-	while (_index < _currExpr.length() && !_isEndReached) {
-		parseNextToken();
-
-		switch (_currTok) {
+	while (_parser->parseNextToken()) {
+		switch (_parser->getCurrentToken()) {
 		case TokenValue::MUL: {
 			double second = prim();
 			first *= second;
@@ -81,7 +77,7 @@ double Calculator::term()
 			break;
 		}
 		default:
-			--_index;
+			_parser->comeBackToPreviosToken();
 			return first;
 		}
 	}
@@ -92,25 +88,25 @@ double Calculator::term()
 // P -> N | (E) | Var = E
 double Calculator::prim()
 {
-	parseNextToken();
+	_parser->parseNextToken();
 
-	switch (_currTok) {
+	switch (_parser->getCurrentToken()) {
 	case TokenValue::LP: {
 		double num = expr();
-		if (_currTok != TokenValue::RP) {
+		if (_parser->getCurrentToken() != TokenValue::RP) {
 			throw exception("The ) is needed");
 		}
 		return num;
 	}
 	case TokenValue::NAME: {
-		string name = parseName();	
+		string name = _parser->parseName();	
 		auto checkVar = [&name](const pair<string, double>& var) { return var.first == name; };
 		auto var = find_if(begin(_variables), end(_variables), checkVar);
 
-		parseNextToken();
+		_parser->parseNextToken();
 
-		if (_currTok == TokenValue::ASSIGN) {
-			resetCurrentExpression(_currExpr.substr(_index));
+		if (_parser->getCurrentToken() == TokenValue::ASSIGN) {
+			_parser->setNewExprFromCurIndex();
 			double num = expr();
 			auto newVar = make_pair(name, num);
 
@@ -123,7 +119,7 @@ double Calculator::prim()
 		}
 		
 		if (var != end(_variables)) {
-			--_index;
+			_parser->comeBackToPreviosToken();
 			return var->second;
 		}
 		else {	
@@ -136,126 +132,19 @@ double Calculator::prim()
 	case TokenValue::ASSIGN: 
 		throw exception("The assign operator (=) can be used only after var name");
 	case TokenValue::NUMBER:
-		return parseNumber();
+		return _parser->parseNumber();
 	case TokenValue::MINUS: 
-		parseNextToken();
+		_parser->parseNextToken();
 
-		if (_currTok == TokenValue::NUMBER) {
-			--_index;
-			return parseNumber();
+		if (_parser->getCurrentToken() == TokenValue::NUMBER) {
+			_parser->comeBackToPreviosToken();
+			return _parser->parseNumber();
 		}
 		else throw exception("Invalid expression");
 	default:
-		--_index;
+		_parser->comeBackToPreviosToken();
 		return 0;
 	}
 
 	return 0;
-}
-
-void Calculator::parseNextToken(bool spaceSensitive) noexcept
-{
-	if (_index >= _currExpr.length()) {
-		markThatEndIsReached();
-		return;
-	}
-	
-	char ch = _currExpr.at(_index++);
-
-	if (!spaceSensitive) {
-		while (isspace(ch) && _index < _currExpr.length()) {
-			ch = _currExpr.at(_index++);
-		}
-
-		if (_index == _currExpr.length() && isspace(ch)) {
-			markThatEndIsReached();
-			return;
-		}
-
-	} else if (isspace(ch)) {
-		_currTok = TokenValue::SPACE;
-		return;
-	}
-
-	if (isalpha(ch)) {
-		_currTok = TokenValue::NAME;
-		return;
-	}
-	if (isdigit(ch)) {
-		_currTok = TokenValue::NUMBER;
-		return;
-	}
-	
-	switch (ch) {
-	case '+':
-		_currTok = TokenValue::PLUS;
-		break;
-	case '-':
-		_currTok = TokenValue::MINUS;
-		break;
-	case '*':
-		_currTok = TokenValue::MUL;
-		break;
-	case '/':
-		_currTok = TokenValue::DIV;
-		break;
-	case '=':
-		_currTok = TokenValue::ASSIGN;
-		break;
-	case '(':
-		_currTok = TokenValue::LP;
-		break;
-	case ')':
-		_currTok = TokenValue::RP;
-		break;
-	case '.':
-		_currTok = TokenValue::DOT;
-		break;
-	case ';':
-		_currTok = TokenValue::PRINT;
-		break;
-	default:
-		_currTok = TokenValue::UNKNOWN;
-		break;
-	}
-}
-
-double Calculator::parseNumber()
-{
-	try {
-		size_t pos;
-		double num = stod(_currExpr.substr(--_index), &pos);
-		_index += pos;
-		return num;
-	}
-	catch (const exception&) {
-		throw exception("Invalid number");
-	}
-}
-
-string Calculator::parseName() noexcept
-{
-	string variableName;
-	
-	while (_index <= _currExpr.length() && _currTok == TokenValue::NAME) {
-		variableName.push_back(_currExpr.at(_index - 1));
-		parseNextToken(true);
-	}
-
-	--_index;
-	return variableName;
-}
-
-void Calculator::markThatEndIsReached() noexcept
-{
-	_isEndReached = true;
-	_currTok = TokenValue::NO_OPERAND;
-}
-
-void Calculator::resetCurrentExpression(const string& newExpr) noexcept
-{
-	_currExpr = newExpr;
-	_index = 0;
-	_isEndReached = false;
-	_currTok = TokenValue::NO_OPERAND;
 }

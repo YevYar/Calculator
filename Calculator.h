@@ -18,32 +18,23 @@
 #include <string>
 #include <set>
 
-class Calculator
-{
-public:
-	double calculate(const std::string& expression);
+#include "ExpressionParser.h"
 
-private:
-	enum class TokenValue {
-		NAME, NUMBER, SPACE, NO_OPERAND, UNKNOWN,
-		PLUS = '+', MINUS = '-', MUL = '*', DIV = '/',
-		PRINT = ';', DOT = '.', ASSIGN = '=', LP = '(', RP = ')'
-	};	
+namespace calculator {
+	class Calculator
+	{
+	public:
+		double calculate(const std::string& expression);
 
-	double expr();
-	double term();
-	double prim();
-	void parseNextToken(bool spaceSensitive = false) noexcept;
-	double parseNumber();
-	std::string parseName() noexcept;	
-	void markThatEndIsReached() noexcept;
-	void resetCurrentExpression(const std::string& newExpr) noexcept;
+	private:
+		double expr();
+		double term();
+		double prim();
+		
+		std::set<std::pair<std::string, double>> _variables;
+		calculator::ExpressionParser* _parser = new calculator::ExpressionParser();
 
-	TokenValue _currTok = TokenValue::NO_OPERAND;
-	std::string _currExpr = "";
-	size_t _index = 0;
-	std::set<std::pair<std::string, double>> _variables;
-	bool _isEndReached = false;
-};
+	};
+}
 
 #endif

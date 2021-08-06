@@ -6,6 +6,7 @@
 #include "Helpers.h"
 
 using namespace std;
+using namespace calculator;
 
 CalculatorDriver::~CalculatorDriver()
 {

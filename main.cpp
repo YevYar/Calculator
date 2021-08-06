@@ -1,9 +1,9 @@
 #include "CalculatorDriver.h"
 
 int main() {
-	CalculatorDriver calculator;
+	calculator::CalculatorDriver calculatorInstance;
 
-	calculator.run();
-	
+	calculatorInstance.run();
+
 	return 0;
 }
