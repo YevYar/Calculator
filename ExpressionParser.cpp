@@ -86,7 +86,7 @@ double ExpressionParser::parseNumber()
 	}
 }
 
-string ExpressionParser::parseName() noexcept
+string ExpressionParser::parseName()
 {
 	string variableName;
 
@@ -104,7 +104,7 @@ ExpressionParser::TokenValue ExpressionParser::getCurrentToken() noexcept
 	return _currTok;
 }
 
-void ExpressionParser::setNewExpression(const string& newExpr) noexcept
+void ExpressionParser::setNewExpression(const string& newExpr)
 {
 	_currExpr = newExpr;
 	_index = 0;
@@ -112,12 +112,12 @@ void ExpressionParser::setNewExpression(const string& newExpr) noexcept
 	_currTok = TokenValue::NO_OPERAND;
 }
 
-void ExpressionParser::setNewExprFromCurIndex() noexcept
+void ExpressionParser::setNewExprFromCurIndex()
 {
 	setNewExpression(_currExpr.substr(_index));
 }
 
-string ExpressionParser::getRestOfExpression() noexcept
+string ExpressionParser::getRestOfExpression()
 {
 	return _currExpr.substr(_index > 0 ? --_index : 0);
 }

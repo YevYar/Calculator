@@ -15,11 +15,11 @@ namespace calculator {
 
 		bool parseNextToken(bool spaceSensitive = false) noexcept;
 		double parseNumber();
-		std::string parseName() noexcept;
+		std::string parseName();
 		TokenValue getCurrentToken() noexcept;
-		void setNewExpression(const std::string& newExpr) noexcept;
-		void setNewExprFromCurIndex() noexcept;
-		std::string getRestOfExpression() noexcept;
+		void setNewExpression(const std::string& newExpr);
+		void setNewExprFromCurIndex();
+		std::string getRestOfExpression();
 		void comeBackToPreviosToken() noexcept;
 
 	private:				
