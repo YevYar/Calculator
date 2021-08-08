@@ -6,19 +6,20 @@
 #ifndef CALCULATOR_DRIVER_H
 #define CALCULATOR_DRIVER_H
 
+#include <memory>
+
 #include "Calculator.h"
 
 namespace calculator {
 	class CalculatorDriver
 	{
 	public:
-		// implement constructor to receive calculator
-		~CalculatorDriver();
+		CalculatorDriver(std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>());
 
 		void run() noexcept;
 
 	private:
-		Calculator* _calculator = new Calculator();
+		std::unique_ptr<Calculator> _calculator;
 
 	};
 }

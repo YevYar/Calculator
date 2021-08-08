@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "CalculatorDriver.h"
 #include "Helpers.h"
@@ -8,9 +9,8 @@
 using namespace std;
 using namespace calculator;
 
-CalculatorDriver::~CalculatorDriver()
+CalculatorDriver::CalculatorDriver(unique_ptr<Calculator> newCalculator): _calculator(move(newCalculator))
 {
-	delete _calculator;
 }
 
 void CalculatorDriver::run() noexcept

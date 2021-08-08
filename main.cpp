@@ -1,6 +1,7 @@
 #include "CalculatorDriver.h"
 
-int main() {
+int main() 
+{
 	calculator::CalculatorDriver calculatorInstance;
 
 	calculatorInstance.run();
