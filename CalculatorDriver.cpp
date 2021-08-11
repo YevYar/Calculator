@@ -15,8 +15,13 @@ CalculatorDriver::CalculatorDriver(unique_ptr<Calculator> newCalculator): _calcu
 
 void CalculatorDriver::run() noexcept
 {
-	string str;
+	if (!_calculator) {
+		cerr << "The calculator has not been set.\n";
+		return;
+	}
+
 	try {
+		string str;
 		while (getline(cin, str)) {
 			stringstream data(str);
 			string tempExpr;
@@ -24,17 +29,17 @@ void CalculatorDriver::run() noexcept
 			if (helpers::isCinValid()) {
 				while (getline(data, tempExpr, ';')) {
 					try {
-						cout << tempExpr << " = " << _calculator->calculate(tempExpr) << endl << endl;
+						cout << tempExpr << " = " << _calculator->calculate(tempExpr) << "\n\n";
 					}
 					catch (const exception& error) {
-						cerr << tempExpr << endl << error.what() << endl << endl;
+						cerr << tempExpr << endl << error.what() << "\n\n";
 					}
 				}
 			}
-			else cerr << "The expression is not finished." << endl;
+			else cerr << "The expression is not finished.\n";
 		}
 	}
 	catch (const exception& error) {
-		cerr << error.what() << endl;
+		cerr << error.what() << "\n";
 	}
 }
