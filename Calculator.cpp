@@ -4,10 +4,59 @@
 #include <iterator>
 
 #include "Calculator.h"
+#include "ExpressionParser.h"
 
 using namespace std;
 using namespace calculator;
-using TokenValue = ExpressionParser::TokenValue;
+namespace TokenValue = calculator::tokenValues;
+
+Calculator::Calculator(): _parser(new ExpressionParser())
+{
+}
+
+Calculator::Calculator(ExpressionParser* parser): _parser(parser == nullptr ? new ExpressionParser() : parser)
+{
+}
+
+Calculator::Calculator(const Calculator& obj):
+	_variables(obj._variables), _parser(obj._parser->clone())
+{
+}
+
+Calculator::Calculator(Calculator&& obj) noexcept:
+	_variables(move(obj._variables)), _parser(obj._parser)
+{
+	obj._parser = nullptr;
+}
+
+Calculator& Calculator::operator=(const Calculator& obj)
+{
+	if (this != &obj) {
+		ExpressionParser* const tempPointer = obj._parser->clone();
+		delete _parser;
+		_parser = tempPointer;
+		_variables = obj._variables;
+	}
+
+	return *this;
+}
+
+Calculator& Calculator::operator=(Calculator&& obj) noexcept
+{
+	if (this != &obj) {
+		_variables = move(obj._variables);
+		delete _parser;
+		_parser = obj._parser;
+		obj._parser = nullptr;
+	}
+
+	return *this;
+}
+
+Calculator::~Calculator()
+{
+	delete _parser;
+}
 
 double Calculator::calculate(const string& expression)
 {
@@ -15,7 +64,7 @@ double Calculator::calculate(const string& expression)
 	tempExpr.resize(expression.length());
 
 	replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
-	_parser->setNewExpression(tempExpr);
+	_parser->setNewExpression(move(tempExpr));
 	
 	try {
 		return expr();
@@ -114,7 +163,7 @@ double Calculator::prim()
 				_variables.erase(var);
 			}
 
-			_variables.insert(newVar);
+			_variables.insert(move(newVar));
 			return num;		
 		}
 		

@@ -4,28 +4,42 @@
 #include <string>
 
 namespace calculator {
+	namespace tokenValues {
+		constexpr int NAME = 0;
+		constexpr int NUMBER = 1;
+		constexpr int SPACE = 2;
+		constexpr int NO_OPERAND = 3;
+		constexpr int UNKNOWN = 4;
+		constexpr int PLUS = '+';
+		constexpr int MINUS = '-';
+		constexpr int MUL = '*';
+		constexpr int DIV = '/';
+		constexpr int ASSIGN = '=';
+		constexpr int LP = '(';
+		constexpr int RP = ')';
+	}
+
 	class ExpressionParser 
 	{
 	public:
-		enum class TokenValue {
-			NAME, NUMBER, SPACE, NO_OPERAND, UNKNOWN,
-			PLUS = '+', MINUS = '-', MUL = '*', DIV = '/',
-			ASSIGN = '=', LP = '(', RP = ')'
-		};
+		using TokenValue = int;
 
-		bool parseNextToken(bool spaceSensitive = false) noexcept;
-		double parseNumber();
-		std::string parseName();
-		TokenValue getCurrentToken() noexcept;
-		void setNewExpression(const std::string& newExpr);
-		void setNewExprFromCurIndex();
-		std::string getRestOfExpression();
+		virtual ~ExpressionParser() = default;
+
+		virtual ExpressionParser* clone() const;
+		virtual bool parseNextToken(bool spaceSensitive = false);
+		virtual double parseNumber();
+		virtual std::string parseName();
+		virtual void setNewExpression(const std::string& newExpr);
+		TokenValue getCurrentToken() const noexcept;
+		std::string getRestOfExpression() const;
+		void setNewExprFromCurIndex();		
 		void comeBackToPreviosToken() noexcept;
 
-	private:				
-		void markThatEndIsReached() noexcept;
+	protected:				
+		virtual void markThatEndIsReached();
 
-		TokenValue _currTok = TokenValue::NO_OPERAND;
+		TokenValue _currTok = tokenValues::NO_OPERAND;
 		std::string _currExpr = "";
 		size_t _index = 0;
 		bool _isEndReached = false;

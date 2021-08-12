@@ -5,7 +5,11 @@
 using namespace std;
 using namespace calculator;
 
-bool ExpressionParser::parseNextToken(bool spaceSensitive) noexcept
+ExpressionParser* ExpressionParser::clone() const {
+	return new ExpressionParser(*this);
+}
+
+bool ExpressionParser::parseNextToken(bool spaceSensitive)
 {
 	if (_isEndReached) {
 		return false;
@@ -30,43 +34,43 @@ bool ExpressionParser::parseNextToken(bool spaceSensitive) noexcept
 
 	}
 	else if (isspace(ch)) {
-		_currTok = TokenValue::SPACE;
+		_currTok = tokenValues::SPACE;
 		return true;
 	}
 
 	if (isalpha(ch)) {
-		_currTok = TokenValue::NAME;
+		_currTok = tokenValues::NAME;
 		return true;
 	}
 	if (isdigit(ch)) {
-		_currTok = TokenValue::NUMBER;
+		_currTok = tokenValues::NUMBER;
 		return true;
 	}
 
 	switch (ch) {
 	case '+':
-		_currTok = TokenValue::PLUS;
+		_currTok = tokenValues::PLUS;
 		break;
 	case '-':
-		_currTok = TokenValue::MINUS;
+		_currTok = tokenValues::MINUS;
 		break;
 	case '*':
-		_currTok = TokenValue::MUL;
+		_currTok = tokenValues::MUL;
 		break;
 	case '/':
-		_currTok = TokenValue::DIV;
+		_currTok = tokenValues::DIV;
 		break;
 	case '=':
-		_currTok = TokenValue::ASSIGN;
+		_currTok = tokenValues::ASSIGN;
 		break;
 	case '(':
-		_currTok = TokenValue::LP;
+		_currTok = tokenValues::LP;
 		break;
 	case ')':
-		_currTok = TokenValue::RP;
+		_currTok = tokenValues::RP;
 		break;
 	default:
-		_currTok = TokenValue::UNKNOWN;
+		_currTok = tokenValues::UNKNOWN;
 		break;
 	}
 
@@ -90,7 +94,7 @@ string ExpressionParser::parseName()
 {
 	string variableName;
 
-	while (_index <= _currExpr.length() && _currTok == TokenValue::NAME) {
+	while (_index <= _currExpr.length() && _currTok == tokenValues::NAME) {
 		variableName.push_back(_currExpr.at(_index - 1));
 		parseNextToken(true);
 	}
@@ -99,17 +103,22 @@ string ExpressionParser::parseName()
 	return variableName;
 }
 
-ExpressionParser::TokenValue ExpressionParser::getCurrentToken() noexcept
-{
-	return _currTok;
-}
-
 void ExpressionParser::setNewExpression(const string& newExpr)
 {
 	_currExpr = newExpr;
 	_index = 0;
 	_isEndReached = false;
-	_currTok = TokenValue::NO_OPERAND;
+	_currTok = tokenValues::NO_OPERAND;
+}
+
+ExpressionParser::TokenValue ExpressionParser::getCurrentToken() const noexcept
+{
+	return _currTok;
+}
+
+string ExpressionParser::getRestOfExpression() const
+{
+	return _currExpr.substr(_index > 0 ? _index - 1 : 0);
 }
 
 void ExpressionParser::setNewExprFromCurIndex()
@@ -117,18 +126,13 @@ void ExpressionParser::setNewExprFromCurIndex()
 	setNewExpression(_currExpr.substr(_index));
 }
 
-string ExpressionParser::getRestOfExpression()
-{
-	return _currExpr.substr(_index > 0 ? --_index : 0);
-}
-
 void ExpressionParser::comeBackToPreviosToken() noexcept
 {
 	--_index;
 }
 
-void ExpressionParser::markThatEndIsReached() noexcept
+void ExpressionParser::markThatEndIsReached()
 {
 	_isEndReached = true;
-	_currTok = TokenValue::NO_OPERAND;
+	_currTok = tokenValues::NO_OPERAND;
 }

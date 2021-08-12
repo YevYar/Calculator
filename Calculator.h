@@ -18,21 +18,30 @@
 #include <string>
 #include <set>
 
-#include "ExpressionParser.h"
-
 namespace calculator {
+	class ExpressionParser;
+
 	class Calculator
 	{
 	public:
-		double calculate(const std::string& expression);
+		Calculator();
+		Calculator(const Calculator& obj);
+		Calculator(Calculator&& obj) noexcept;
+		Calculator& operator=(const Calculator& obj);
+		Calculator& operator=(Calculator&& obj) noexcept;
+		virtual ~Calculator();
 
-	private:
-		double expr();
-		double term();
-		double prim();
+		virtual double calculate(const std::string& expression);
+
+	protected:
+		Calculator(ExpressionParser* parser);
+
+		virtual double expr();
+		virtual double term();
+		virtual double prim();
 		
 		std::set<std::pair<std::string, double>> _variables;
-		calculator::ExpressionParser* _parser = new calculator::ExpressionParser();
+		ExpressionParser* _parser;
 
 	};
 }
