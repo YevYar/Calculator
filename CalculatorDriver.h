@@ -16,7 +16,7 @@ namespace calculator {
 	public:
 		CalculatorDriver(std::unique_ptr<Calculator> calculator = std::make_unique<Calculator>());
 
-		void run() noexcept;
+		void run() const noexcept;
 
 	private:
 		std::unique_ptr<Calculator> _calculator;

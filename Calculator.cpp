@@ -57,13 +57,11 @@ Calculator::~Calculator()
 	delete _parser;
 }
 
-double Calculator::calculate(const std::string& expression)
+// it is faster pass by value than pass by const ref
+double Calculator::calculate(std::string expression)
 {
-	std::string tempExpr;
-	tempExpr.resize(expression.length());
-
-	std::replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
-	_parser->setNewExpression(std::move(tempExpr));
+	std::replace(expression.begin(), expression.end(), ',', '.');
+	_parser->setNewExpression(expression);
 	
 	try {
 		return expr();

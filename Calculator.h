@@ -31,7 +31,7 @@ namespace calculator {
 		Calculator& operator=(Calculator&& obj) noexcept;
 		virtual ~Calculator();
 
-		virtual double calculate(const std::string& expression);
+		virtual double calculate(std::string expression);
 
 	protected:
 		Calculator(ExpressionParser* parser);

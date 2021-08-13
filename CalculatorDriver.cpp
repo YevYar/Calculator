@@ -12,7 +12,7 @@ CalculatorDriver::CalculatorDriver(std::unique_ptr<Calculator> newCalculator): _
 {
 }
 
-void CalculatorDriver::run() noexcept
+void CalculatorDriver::run() const noexcept
 {
 	if (!_calculator) {
 		std::cerr << "The calculator has not been set.\n";
