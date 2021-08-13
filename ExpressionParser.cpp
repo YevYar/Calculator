@@ -2,7 +2,6 @@
 
 #include "ExpressionParser.h"
 
-using namespace std;
 using namespace calculator;
 
 ExpressionParser* ExpressionParser::clone() const {
@@ -81,18 +80,18 @@ double ExpressionParser::parseNumber()
 {
 	try {
 		size_t pos;
-		double num = stod(_currExpr.substr(--_index), &pos);
+		double num = std::stod(_currExpr.substr(--_index), &pos);
 		_index += pos;
 		return num;
 	}
-	catch (const exception&) {
-		throw exception("Invalid number");
+	catch (const std::exception&) {
+		throw std::exception("Invalid number");
 	}
 }
 
-string ExpressionParser::parseName()
+std::string ExpressionParser::parseName()
 {
-	string variableName;
+	std::string variableName;
 
 	while (_index <= _currExpr.length() && _currTok == tokenValues::NAME) {
 		variableName.push_back(_currExpr.at(_index - 1));
@@ -103,7 +102,7 @@ string ExpressionParser::parseName()
 	return variableName;
 }
 
-void ExpressionParser::setNewExpression(const string& newExpr)
+void ExpressionParser::setNewExpression(const std::string& newExpr)
 {
 	_currExpr = newExpr;
 	_index = 0;
@@ -116,7 +115,7 @@ ExpressionParser::TokenValue ExpressionParser::getCurrentToken() const noexcept
 	return _currTok;
 }
 
-string ExpressionParser::getRestOfExpression() const
+std::string ExpressionParser::getRestOfExpression() const
 {
 	return _currExpr.substr(_index > 0 ? _index - 1 : 0);
 }

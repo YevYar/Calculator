@@ -6,7 +6,6 @@
 #include "Calculator.h"
 #include "ExpressionParser.h"
 
-using namespace std;
 using namespace calculator;
 namespace TokenValue = calculator::tokenValues;
 
@@ -24,7 +23,7 @@ Calculator::Calculator(const Calculator& obj):
 }
 
 Calculator::Calculator(Calculator&& obj) noexcept:
-	_variables(move(obj._variables)), _parser(obj._parser)
+	_variables(std::move(obj._variables)), _parser(obj._parser)
 {
 	obj._parser = nullptr;
 }
@@ -44,7 +43,7 @@ Calculator& Calculator::operator=(const Calculator& obj)
 Calculator& Calculator::operator=(Calculator&& obj) noexcept
 {
 	if (this != &obj) {
-		_variables = move(obj._variables);
+		_variables = std::move(obj._variables);
 		delete _parser;
 		_parser = obj._parser;
 		obj._parser = nullptr;
@@ -58,22 +57,22 @@ Calculator::~Calculator()
 	delete _parser;
 }
 
-double Calculator::calculate(const string& expression)
+double Calculator::calculate(const std::string& expression)
 {
-	string tempExpr;
+	std::string tempExpr;
 	tempExpr.resize(expression.length());
 
-	replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
-	_parser->setNewExpression(move(tempExpr));
+	std::replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
+	_parser->setNewExpression(std::move(tempExpr));
 	
 	try {
 		return expr();
 	}
-	catch (const exception& error) {
-		string errorMes = fmt::format("{errorMes}: position: {pos}", 
+	catch (const std::exception& error) {
+		std::string errorMes = fmt::format("{errorMes}: position: {pos}",
 			fmt::arg("errorMes", error.what()), 
 			fmt::arg("pos", _parser->getRestOfExpression()));
-		throw exception(errorMes.c_str());
+		throw std::exception(errorMes.c_str());
 	}
 }
 
@@ -98,7 +97,7 @@ double Calculator::expr()
 		case TokenValue::NO_OPERAND:
 			return first;
 		default:
-			throw exception("Invalid expression");
+			throw std::exception("Invalid expression");
 		}
 	}	
 
@@ -120,7 +119,7 @@ double Calculator::term()
 		case TokenValue::DIV: {
 			double second = prim();
 			if (second == 0) {
-				throw exception("Division by zero");
+				throw std::exception("Division by zero");
 			}
 			first /= second;
 			break;
@@ -143,43 +142,43 @@ double Calculator::prim()
 	case TokenValue::LP: {
 		double num = expr();
 		if (_parser->getCurrentToken() != TokenValue::RP) {
-			throw exception("The ) is needed");
+			throw std::exception("The ) is needed");
 		}
 		return num;
 	}
 	case TokenValue::NAME: {
-		string name = _parser->parseName();	
-		auto checkVar = [&name](const pair<string, double>& var) { return var.first == name; };
-		auto var = find_if(begin(_variables), end(_variables), checkVar);
+		std::string name = _parser->parseName();
+		auto checkVar = [&name](const std::pair<std::string, double>& var) { return var.first == name; };
+		auto var = std::find_if(begin(_variables), end(_variables), checkVar);
 
 		_parser->parseNextToken();
 
 		if (_parser->getCurrentToken() == TokenValue::ASSIGN) {
 			_parser->setNewExprFromCurIndex();
 			double num = expr();
-			auto newVar = make_pair(name, num);
+			auto newVar = std::make_pair(name, num);
 
-			if (var != end(_variables)) {
+			if (var != std::end(_variables)) {
 				_variables.erase(var);
 			}
 
-			_variables.insert(move(newVar));
+			_variables.insert(std::move(newVar));
 			return num;		
 		}
 		
-		if (var != end(_variables)) {
+		if (var != std::end(_variables)) {
 			_parser->comeBackToPreviosToken();
 			return var->second;
 		}
 		else {	
-			string errorMes = fmt::format("Undeclared variable {name}", fmt::arg("name", name));
-			throw exception(errorMes.c_str());
+			std::string errorMes = fmt::format("Undeclared variable {name}", fmt::arg("name", name));
+			throw std::exception(errorMes.c_str());
 		}
 
 		break;
 	}
 	case TokenValue::ASSIGN: 
-		throw exception("The assign operator (=) can be used only after var name");
+		throw std::exception("The assign operator (=) can be used only after var name");
 	case TokenValue::NUMBER:
 		return _parser->parseNumber();
 	case TokenValue::MINUS: 
@@ -189,7 +188,7 @@ double Calculator::prim()
 			_parser->comeBackToPreviosToken();
 			return _parser->parseNumber();
 		}
-		else throw exception("Invalid expression");
+		else throw std::exception("Invalid expression");
 	default:
 		_parser->comeBackToPreviosToken();
 		return 0;

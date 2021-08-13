@@ -6,40 +6,39 @@
 #include "CalculatorDriver.h"
 #include "Helpers.h"
 
-using namespace std;
 using namespace calculator;
 
-CalculatorDriver::CalculatorDriver(unique_ptr<Calculator> newCalculator): _calculator(move(newCalculator))
+CalculatorDriver::CalculatorDriver(std::unique_ptr<Calculator> newCalculator): _calculator(std::move(newCalculator))
 {
 }
 
 void CalculatorDriver::run() noexcept
 {
 	if (!_calculator) {
-		cerr << "The calculator has not been set.\n";
+		std::cerr << "The calculator has not been set.\n";
 		return;
 	}
 
 	try {
-		string str;
-		while (getline(cin, str)) {
-			stringstream data(str);
-			string tempExpr;
+		std::string str;
+		while (std::getline(std::cin, str)) {
+			std::stringstream data(str);
+			std::string tempExpr;
 
 			if (helpers::isCinValid()) {
-				while (getline(data, tempExpr, ';')) {
+				while (std::getline(data, tempExpr, ';')) {
 					try {
-						cout << tempExpr << " = " << _calculator->calculate(tempExpr) << "\n\n";
+						std::cout << tempExpr << " = " << _calculator->calculate(tempExpr) << "\n\n";
 					}
-					catch (const exception& error) {
-						cerr << tempExpr << endl << error.what() << "\n\n";
+					catch (const std::exception& error) {
+						std::cerr << tempExpr << "\n" << error.what() << "\n\n";
 					}
 				}
 			}
-			else cerr << "The expression is not finished.\n";
+			else std::cerr << "The expression is not finished.\n";
 		}
 	}
-	catch (const exception& error) {
-		cerr << error.what() << "\n";
+	catch (const std::exception& error) {
+		std::cerr << error.what() << "\n";
 	}
 }
