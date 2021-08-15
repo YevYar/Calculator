@@ -19,7 +19,7 @@ namespace calculator {
 		void run() const noexcept;
 
 	private:
-		std::unique_ptr<Calculator> _calculator;
+		std::unique_ptr<Calculator> calculator;
 
 	};
 }

@@ -8,13 +8,13 @@
 
 using namespace calculator;
 
-CalculatorDriver::CalculatorDriver(std::unique_ptr<Calculator> newCalculator): _calculator(std::move(newCalculator))
+CalculatorDriver::CalculatorDriver(std::unique_ptr<Calculator> newCalculator): calculator(std::move(newCalculator))
 {
 }
 
 void CalculatorDriver::run() const noexcept
 {
-	if (!_calculator) {
+	if (!calculator) {
 		std::cerr << "The calculator has not been set.\n";
 		return;
 	}
@@ -28,7 +28,7 @@ void CalculatorDriver::run() const noexcept
 			if (helpers::isCinValid()) {
 				while (std::getline(data, tempExpr, ';')) {
 					try {
-						std::cout << tempExpr << " = " << _calculator->calculate(tempExpr) << "\n\n";
+						std::cout << tempExpr << " = " << calculator->calculate(tempExpr) << "\n\n";
 					}
 					catch (const std::exception& error) {
 						std::cerr << tempExpr << "\n" << error.what() << "\n\n";

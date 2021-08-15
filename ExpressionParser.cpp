@@ -10,66 +10,66 @@ ExpressionParser* ExpressionParser::clone() const {
 
 bool ExpressionParser::parseNextToken(bool spaceSensitive)
 {
-	if (_isEndReached) {
+	if (isEndReached) {
 		return false;
 	}
 
-	if (_index >= _currExpr.length()) {
+	if (currIndex >= currExpr.length()) {
 		markThatEndIsReached();
 		return false;
 	}
 
-	char ch = _currExpr.at(_index++);
+	char ch = currExpr.at(currIndex++);
 
 	if (!spaceSensitive) {
-		while (isspace(ch) && _index < _currExpr.length()) {
-			ch = _currExpr.at(_index++);
+		while (isspace(ch) && currIndex < currExpr.length()) {
+			ch = currExpr.at(currIndex++);
 		}
 
-		if (_index == _currExpr.length() && isspace(ch)) {
+		if (currIndex == currExpr.length() && isspace(ch)) {
 			markThatEndIsReached();
 			return false;
 		}
 
 	}
 	else if (isspace(ch)) {
-		_currTok = tokenValues::SPACE;
+		currTok = tokenValues::SPACE;
 		return true;
 	}
 
 	if (isalpha(ch)) {
-		_currTok = tokenValues::NAME;
+		currTok = tokenValues::NAME;
 		return true;
 	}
 	if (isdigit(ch)) {
-		_currTok = tokenValues::NUMBER;
+		currTok = tokenValues::NUMBER;
 		return true;
 	}
 
 	switch (ch) {
 	case '+':
-		_currTok = tokenValues::PLUS;
+		currTok = tokenValues::PLUS;
 		break;
 	case '-':
-		_currTok = tokenValues::MINUS;
+		currTok = tokenValues::MINUS;
 		break;
 	case '*':
-		_currTok = tokenValues::MUL;
+		currTok = tokenValues::MUL;
 		break;
 	case '/':
-		_currTok = tokenValues::DIV;
+		currTok = tokenValues::DIV;
 		break;
 	case '=':
-		_currTok = tokenValues::ASSIGN;
+		currTok = tokenValues::ASSIGN;
 		break;
 	case '(':
-		_currTok = tokenValues::LP;
+		currTok = tokenValues::LP;
 		break;
 	case ')':
-		_currTok = tokenValues::RP;
+		currTok = tokenValues::RP;
 		break;
 	default:
-		_currTok = tokenValues::UNKNOWN;
+		currTok = tokenValues::UNKNOWN;
 		break;
 	}
 
@@ -80,8 +80,8 @@ double ExpressionParser::parseNumber()
 {
 	try {
 		size_t pos;
-		double num = std::stod(_currExpr.substr(--_index), &pos);
-		_index += pos;
+		double num = std::stod(currExpr.substr(--currIndex), &pos);
+		currIndex += pos;
 		return num;
 	}
 	catch (const std::exception&) {
@@ -93,45 +93,45 @@ std::string ExpressionParser::parseName()
 {
 	std::string variableName;
 
-	while (_index <= _currExpr.length() && _currTok == tokenValues::NAME) {
-		variableName.push_back(_currExpr.at(_index - 1));
+	while (currIndex <= currExpr.length() && currTok == tokenValues::NAME) {
+		variableName.push_back(currExpr.at(currIndex - 1));
 		parseNextToken(true);
 	}
 
-	--_index;
+	--currIndex;
 	return variableName;
 }
 
 void ExpressionParser::setNewExpression(const std::string& newExpr)
 {
-	_currExpr = newExpr;
-	_index = 0;
-	_isEndReached = false;
-	_currTok = tokenValues::NO_OPERAND;
+	currExpr = newExpr;
+	currIndex = 0;
+	isEndReached = false;
+	currTok = tokenValues::NO_OPERAND;
 }
 
 ExpressionParser::TokenValue ExpressionParser::getCurrentToken() const noexcept
 {
-	return _currTok;
+	return currTok;
 }
 
 std::string ExpressionParser::getRestOfExpression() const
 {
-	return _currExpr.substr(_index > 0 ? _index - 1 : 0);
+	return currExpr.substr(currIndex > 0 ? currIndex - 1 : 0);
 }
 
 void ExpressionParser::setNewExprFromCurIndex()
 {
-	setNewExpression(_currExpr.substr(_index));
+	setNewExpression(currExpr.substr(currIndex));
 }
 
 void ExpressionParser::comeBackToPreviosToken() noexcept
 {
-	--_index;
+	--currIndex;
 }
 
 void ExpressionParser::markThatEndIsReached()
 {
-	_isEndReached = true;
-	_currTok = tokenValues::NO_OPERAND;
+	isEndReached = true;
+	currTok = tokenValues::NO_OPERAND;
 }

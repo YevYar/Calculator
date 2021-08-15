@@ -40,8 +40,8 @@ namespace calculator {
 		virtual double term();
 		virtual double prim();
 		
-		std::set<std::pair<std::string, double>> _variables;
-		ExpressionParser* _parser;
+		std::set<std::pair<std::string, double>> variables;
+		ExpressionParser* parser;
 
 	};
 }

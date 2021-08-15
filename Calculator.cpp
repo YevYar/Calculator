@@ -9,32 +9,32 @@
 using namespace calculator;
 namespace TokenValue = calculator::tokenValues;
 
-Calculator::Calculator(): _parser(new ExpressionParser())
+Calculator::Calculator(): parser(new ExpressionParser())
 {
 }
 
-Calculator::Calculator(ExpressionParser* parser): _parser(parser == nullptr ? new ExpressionParser() : parser)
+Calculator::Calculator(ExpressionParser* newParser): parser(newParser == nullptr ? new ExpressionParser() : newParser)
 {
 }
 
 Calculator::Calculator(const Calculator& obj):
-	_variables(obj._variables), _parser(obj._parser->clone())
+	variables(obj.variables), parser(obj.parser->clone())
 {
 }
 
 Calculator::Calculator(Calculator&& obj) noexcept:
-	_variables(std::move(obj._variables)), _parser(obj._parser)
+	variables(std::move(obj.variables)), parser(obj.parser)
 {
-	obj._parser = nullptr;
+	obj.parser = nullptr;
 }
 
 Calculator& Calculator::operator=(const Calculator& obj)
 {
 	if (this != &obj) {
-		ExpressionParser* const tempPointer = obj._parser->clone();
-		delete _parser;
-		_parser = tempPointer;
-		_variables = obj._variables;
+		ExpressionParser* const tempPointer = obj.parser->clone();
+		delete parser;
+		parser = tempPointer;
+		variables = obj.variables;
 	}
 
 	return *this;
@@ -43,10 +43,10 @@ Calculator& Calculator::operator=(const Calculator& obj)
 Calculator& Calculator::operator=(Calculator&& obj) noexcept
 {
 	if (this != &obj) {
-		_variables = std::move(obj._variables);
-		delete _parser;
-		_parser = obj._parser;
-		obj._parser = nullptr;
+		variables = std::move(obj.variables);
+		delete parser;
+		parser = obj.parser;
+		obj.parser = nullptr;
 	}
 
 	return *this;
@@ -54,14 +54,19 @@ Calculator& Calculator::operator=(Calculator&& obj) noexcept
 
 Calculator::~Calculator()
 {
-	delete _parser;
+	delete parser;
 }
 
-// it is faster pass by value than pass by const ref
+// it is faster pass by value than pass by const ref because the next commented code slowlier
 double Calculator::calculate(std::string expression)
 {
+	/*
+	std::string tempExpr;
+	tempExpr.resize(expression.length());
+	std::replace_copy(expression.begin(), expression.end(), tempExpr.begin(), ',', '.');
+	*/
 	std::replace(expression.begin(), expression.end(), ',', '.');
-	_parser->setNewExpression(expression);
+	parser->setNewExpression(expression);
 	
 	try {
 		return expr();
@@ -69,7 +74,7 @@ double Calculator::calculate(std::string expression)
 	catch (const std::exception& error) {
 		std::string errorMes = fmt::format("{errorMes}: position: {pos}",
 			fmt::arg("errorMes", error.what()), 
-			fmt::arg("pos", _parser->getRestOfExpression()));
+			fmt::arg("pos", parser->getRestOfExpression()));
 		throw std::exception(errorMes.c_str());
 	}
 }
@@ -79,8 +84,8 @@ double Calculator::expr()
 {
 	double first = term();
 
-	while (_parser->parseNextToken()) {
-		switch (_parser->getCurrentToken()) {
+	while (parser->parseNextToken()) {
+		switch (parser->getCurrentToken()) {
 		case TokenValue::PLUS: {
 			double second = term();
 			first += second;
@@ -107,8 +112,8 @@ double Calculator::term()
 {
 	double first = prim();
 
-	while (_parser->parseNextToken()) {
-		switch (_parser->getCurrentToken()) {
+	while (parser->parseNextToken()) {
+		switch (parser->getCurrentToken()) {
 		case TokenValue::MUL: {
 			double second = prim();
 			first *= second;
@@ -123,7 +128,7 @@ double Calculator::term()
 			break;
 		}
 		default:
-			_parser->comeBackToPreviosToken();
+			parser->comeBackToPreviosToken();
 			return first;
 		}
 	}
@@ -134,38 +139,38 @@ double Calculator::term()
 // P -> N | (E) | Var = E
 double Calculator::prim()
 {
-	_parser->parseNextToken();
+	parser->parseNextToken();
 
-	switch (_parser->getCurrentToken()) {
+	switch (parser->getCurrentToken()) {
 	case TokenValue::LP: {
 		double num = expr();
-		if (_parser->getCurrentToken() != TokenValue::RP) {
+		if (parser->getCurrentToken() != TokenValue::RP) {
 			throw std::exception("The ) is needed");
 		}
 		return num;
 	}
 	case TokenValue::NAME: {
-		std::string name = _parser->parseName();
+		std::string name = parser->parseName();
 		auto checkVar = [&name](const std::pair<std::string, double>& var) { return var.first == name; };
-		auto var = std::find_if(begin(_variables), end(_variables), checkVar);
+		auto var = std::find_if(begin(variables), end(variables), checkVar);
 
-		_parser->parseNextToken();
+		parser->parseNextToken();
 
-		if (_parser->getCurrentToken() == TokenValue::ASSIGN) {
-			_parser->setNewExprFromCurIndex();
+		if (parser->getCurrentToken() == TokenValue::ASSIGN) {
+			parser->setNewExprFromCurIndex();
 			double num = expr();
 			auto newVar = std::make_pair(name, num);
 
-			if (var != std::end(_variables)) {
-				_variables.erase(var);
+			if (var != std::end(variables)) {
+				variables.erase(var);
 			}
 
-			_variables.insert(std::move(newVar));
+			variables.insert(std::move(newVar));
 			return num;		
 		}
 		
-		if (var != std::end(_variables)) {
-			_parser->comeBackToPreviosToken();
+		if (var != std::end(variables)) {
+			parser->comeBackToPreviosToken();
 			return var->second;
 		}
 		else {	
@@ -178,17 +183,17 @@ double Calculator::prim()
 	case TokenValue::ASSIGN: 
 		throw std::exception("The assign operator (=) can be used only after var name");
 	case TokenValue::NUMBER:
-		return _parser->parseNumber();
+		return parser->parseNumber();
 	case TokenValue::MINUS: 
-		_parser->parseNextToken();
+		parser->parseNextToken();
 
-		if (_parser->getCurrentToken() == TokenValue::NUMBER) {
-			_parser->comeBackToPreviosToken();
-			return _parser->parseNumber();
+		if (parser->getCurrentToken() == TokenValue::NUMBER) {
+			parser->comeBackToPreviosToken();
+			return parser->parseNumber();
 		}
 		else throw std::exception("Invalid expression");
 	default:
-		_parser->comeBackToPreviosToken();
+		parser->comeBackToPreviosToken();
 		return 0;
 	}
 
