@@ -28,7 +28,8 @@ void CalculatorDriver::run() const noexcept
 			if (helpers::isCinValid()) {
 				while (std::getline(data, tempExpr, ';')) {
 					try {
-						std::cout << tempExpr << " = " << calculator->calculate(tempExpr) << "\n\n";
+						double result = calculator->calculate(tempExpr);
+						std::cout << tempExpr << " = " << result << "\n\n";
 					}
 					catch (const std::exception& error) {
 						std::cerr << tempExpr << "\n" << error.what() << "\n\n";

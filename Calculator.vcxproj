@@ -89,10 +89,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\Projects\C++\Calculator;D:\Projects\C++\Calculator\src;D:\Projects\C++\Calculator\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Projects\C++\Calculator;D:\Projects\C++\Calculator\include;D:\Projects\C++\Calculator\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -104,12 +106,14 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\Projects\C++\Calculator;D:\Projects\C++\Calculator\src;D:\Projects\C++\Calculator\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Projects\C++\Calculator;D:\Projects\C++\Calculator\include;D:\Projects\C++\Calculator\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -141,17 +145,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Calculator.cpp" />
-    <ClCompile Include="CalculatorDriver.cpp" />
-    <ClCompile Include="ExpressionParser.cpp" />
-    <ClCompile Include="Helpers.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClInclude Include="include\Calculator.h" />
+    <ClInclude Include="include\CalculatorDriver.h" />
+    <ClInclude Include="include\ExpressionParser.h" />
+    <ClInclude Include="include\Helpers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Calculator.h" />
-    <ClInclude Include="CalculatorDriver.h" />
-    <ClInclude Include="ExpressionParser.h" />
-    <ClInclude Include="Helpers.h" />
+    <ClCompile Include="src\Calculator.cpp" />
+    <ClCompile Include="src\CalculatorDriver.cpp" />
+    <ClCompile Include="src\ExpressionParser.cpp" />
+    <ClCompile Include="src\Helpers.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
