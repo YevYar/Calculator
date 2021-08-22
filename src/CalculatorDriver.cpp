@@ -15,7 +15,7 @@ CalculatorDriver::CalculatorDriver(std::unique_ptr<Calculator> newCalculator): c
 void CalculatorDriver::run() const noexcept
 {
 	if (!calculator) {
-		std::cerr << "The calculator has not been set.\n";
+		std::cerr << "The calculator has not been set." << std::endl;
 		return;
 	}
 
@@ -29,17 +29,17 @@ void CalculatorDriver::run() const noexcept
 				while (std::getline(data, tempExpr, ';')) {
 					try {
 						double result = calculator->calculate(tempExpr);
-						std::cout << tempExpr << " = " << result << "\n\n";
+						std::cout << tempExpr << " = " << result << "\n" << std::endl;
 					}
 					catch (const std::exception& error) {
-						std::cerr << tempExpr << "\n" << error.what() << "\n\n";
+						std::cerr << tempExpr << "\n" << error.what() << "\n" << std::endl;
 					}
 				}
 			}
-			else std::cerr << "The expression is not finished.\n";
+			else std::cerr << "The expression is not finished." << std::endl;
 		}
 	}
 	catch (const std::exception& error) {
-		std::cerr << error.what() << "\n";
+		std::cerr << error.what() << std::endl;
 	}
 }
